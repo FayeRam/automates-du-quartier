@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Automates du quartier</title>
+  <meta name="description" content="Apprends à programmer des automates industriels en Python, Ladder et Grafcet.">
+  <meta name="theme-color" content="#1e232d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Automates">
+  <link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+  <link rel="icon" href="icones/icone-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- =============================================================== chargement -->
+<section id="ecran-chargement" class="ecran actif">
+  <img src="icones/icone-192.png" alt="" class="logo">
+  <h1>Automates du quartier</h1>
+  <p id="chargement-texte">Démarrage de Python dans ton téléphone…</p>
+  <div class="barre"><div id="chargement-barre"></div></div>
+  <p class="petit">La première fois, il faut Internet (environ 10 Mo).<br>Ensuite, le jeu marche même sans connexion.</p>
+</section>
+
+<!-- =============================================================== menu -->
+<section id="ecran-menu" class="ecran">
+  <header class="entete">
+    <img src="icones/icone-192.png" alt="" class="logo-mini">
+    <div>
+      <h1>Automates du quartier</h1>
+      <p class="sous-titre">Programme les installations du quartier comme un vrai automaticien</p>
+    </div>
+  </header>
+  <div id="liste-niveaux" class="liste-niveaux"></div>
+  <p id="conseil-installation" class="conseil" hidden>
+    Sur iPhone : touche <b>Partager</b> <span class="icone-partage">⬆︎</span> puis
+    <b>« Sur l'écran d'accueil »</b> pour installer le jeu comme une application.
+  </p>
+</section>
+
+<!-- =============================================================== niveau -->
+<section id="ecran-niveau" class="ecran">
+  <header class="entete entete-niveau">
+    <button id="bouton-retour" class="bouton-rond" aria-label="Retour aux niveaux">‹</button>
+    <span id="badge-niveau" class="badge">Niveau 1</span>
+    <h2 id="titre-niveau">…</h2>
+  </header>
+
+  <div class="niveau-corps">
+    <div class="colonne-installation">
+      <div id="scene" class="scene"></div>
+      <div id="message" class="message"></div>
+      <div id="alerte" class="alerte"></div>
+      <div id="commandes" class="commandes"></div>
+    </div>
+
+    <div class="colonne-programme">
+      <nav class="onglets" role="tablist">
+        <button data-onglet="programme" class="actif">Programme</button>
+        <button data-onglet="consignes">Consignes</button>
+        <button data-onglet="signaux">E / S</button>
+        <button data-onglet="aide">Aide</button>
+      </nav>
+
+      <div id="panneau-programme" class="panneau actif">
+        <div class="choix-langage" role="radiogroup">
+          <button data-langage="python">Python</button>
+          <button data-langage="ladder">Ladder</button>
+          <button data-langage="grafcet">Grafcet</button>
+        </div>
+
+        <div id="bloc-python" class="bloc-langage">
+          <div id="touches" class="touches"></div>
+          <div class="editeur">
+            <pre id="numeros" class="numeros" aria-hidden="true">1</pre>
+            <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"
+                      autocorrect="off" wrap="off" aria-label="Ton programme Python"></textarea>
+          </div>
+        </div>
+
+        <div id="bloc-ladder" class="bloc-langage">
+          <div id="schema-ladder" class="schema"></div>
+          <div id="editeur-ladder" class="editeur-visuel"></div>
+        </div>
+
+        <div id="bloc-grafcet" class="bloc-langage">
+          <div id="schema-grafcet" class="schema"></div>
+          <div id="editeur-grafcet" class="editeur-visuel"></div>
+        </div>
+      </div>
+
+      <div id="panneau-consignes" class="panneau">
+        <p id="histoire" class="histoire"></p>
+        <p id="notion" class="notion"></p>
+        <ul id="consignes" class="consignes"></ul>
+      </div>
+
+      <div id="panneau-signaux" class="panneau">
+        <p class="petit">Les voyants s'allument en direct. Touche un nom pour l'ajouter à ton programme Python.</p>
+        <div class="signaux">
+          <div><h3>Entrées</h3><div id="liste-entrees"></div></div>
+          <div><h3>Sorties</h3><div id="liste-sorties"></div></div>
+        </div>
+      </div>
+
+      <div id="panneau-aide" class="panneau aide">
+        <h3>Python</h3>
+        <table>
+          <tr><td><code>E.bp_marche</code></td><td>lire une entrée (True / False)</td></tr>
+          <tr><td><code>S.moteur = True</code></td><td>commander une sortie</td></tr>
+          <tr><td><code>M.etape = 2</code></td><td>mémoire : garde sa valeur d'un cycle à l'autre (0 au départ)</td></tr>
+          <tr><td><code>T.tempo("vert", condition, 6)</code></td><td>vrai quand la condition est vraie depuis 6 s</td></tr>
+          <tr><td><code>T.front("bp", E.bp_marche)</code></td><td>vrai seulement au moment de l'appui</td></tr>
+          <tr><td><code>T.temps</code></td><td>temps écoulé en secondes</td></tr>
+          <tr><td><code>and</code> / <code>or</code> / <code>not</code></td><td>ET / OU / NON</td></tr>
+        </table>
+        <p>Le programme est exécuté <b>toutes les 50 ms</b>, comme un vrai automate :
+          lire les entrées, calculer, écrire les sorties, et recommencer.</p>
+
+        <h3>Ladder</h3>
+        <p>Chaque <b>barreau</b> est lu de gauche à droite, de haut en bas, à chaque cycle.</p>
+        <ul>
+          <li><b>Contact ouvert</b> <code>| |</code> : laisse passer le courant si le signal est vrai.</li>
+          <li><b>Contact fermé</b> <code>|/|</code> : laisse passer le courant si le signal est <b>faux</b> (bouton d'arrêt).</li>
+          <li>Contacts <b>à la suite</b> = ET. <b>Branche OU</b> = deux chemins en parallèle.</li>
+          <li><b>Bobine</b> <code>( )</code> : la cible prend la valeur du courant. <code>(S)</code> la met à 1 et elle y reste, <code>(R)</code> la remet à 0.</li>
+          <li><b>TON</b> : la tempo <code>T.nom</code> devient vraie quand le courant passe depuis la durée choisie.</li>
+          <li>Mémoires libres : <code>M.m1</code>, <code>M.marche</code>… (tape un nouveau nom pour en créer une).</li>
+        </ul>
+
+        <h3>Grafcet</h3>
+        <ul>
+          <li>L'<b>étape initiale</b> (double carré) est active au démarrage.</li>
+          <li>Une <b>action</b> met une sortie à 1 tant que son étape est active (condition « si » facultative).</li>
+          <li>Une <b>transition</b> est franchie quand son étape de départ est active <b>et</b> que sa condition est vraie
+            (et, si une durée est indiquée, que l'étape est active depuis ce temps-là).</li>
+          <li>Conditions : <code>E.bp_marche ET NON E.bp_arret</code>, <code>E.a OU E.b</code>, <code>X2</code> (l'étape 2 est active). Vide = toujours vraie.</li>
+          <li>Plusieurs transitions depuis une étape (divergence en OU) : la première vraie l'emporte.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer class="barre-actions">
+    <button id="bouton-executer" class="principal">▶ Exécuter</button>
+    <button id="bouton-tester" class="jaune">✓ Tester</button>
+    <button id="bouton-pause" aria-label="Pause">⏸</button>
+    <button id="bouton-recommencer" aria-label="Recommencer">↻</button>
+    <button id="bouton-effacer" aria-label="Repartir du modèle">⌫</button>
+  </footer>
+</section>
+
+<!-- =============================================================== fenêtres -->
+<div id="fond-fenetre" class="fond-fenetre" hidden>
+  <div class="fenetre" role="dialog" aria-modal="true">
+    <h2 id="fenetre-titre"></h2>
+    <div id="fenetre-contenu"></div>
+    <div id="fenetre-boutons" class="fenetre-boutons"></div>
+  </div>
+</div>
+<div id="bulle" class="bulle" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
